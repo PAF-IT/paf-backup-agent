@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: paf-admin-backup-agent
+  labels:
+    app: paf-admin
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: paf-admin-backup-agent
+              image: ${IMAGE}
+              env:
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    configMapKeyRef:
+                      name: paf-admin-backup-agent
+                      key: upcloud_obj_id
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    configMapKeyRef:
+                      name: paf-admin-backup-agent
+                      key: upcloud_obj_secret
+                - name: IMAGE_TAG
+                  valueFrom:
+                    configMapKeyRef:
+                      name: paf-admin-backup-agent
+                      key: image_tag
+                - name: MYSQL_DATABASE
+                  valueFrom:
+                    configMapKeyRef:
+                      name: paf-admin-backup-agent
+                      key: mysql_database
+                - name: MYSQL_PASSWORD
+                  valueFrom:
+                    configMapKeyRef:
+                      name: paf-admin-backup-agent
+                      key: mysql_password
+                - name: MYSQL_USER
+                  valueFrom:
+                    configMapKeyRef:
+                      name: paf-admin-backup-agent
+                      key: mysql_user
+                - name: UPCLOUD_OBJ_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: paf-admin-backup-agent
+                      key: upcloud_obj_host

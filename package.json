@@ -1,0 +1,20 @@
+{
+  "name": "docker-playground-backup-agent",
+  "version": "1.0.0",
+  "description": "This repository demonstrates the creation of a Docker container by a GitHub Action (started manually). The container is simply running a cron-triggered backup script for a mysql container in the same cluster.",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "backup.js",
+  "scripts": {
+    "start": "node backup.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.821.0",
+    "js-yaml": "^4.1.0",
+    "luxon": "^3.6.1",
+    "mysql2": "^3.14.1",
+    "mysqldump": "^3.2.0"
+  }
+}
