@@ -5,7 +5,7 @@ metadata:
   labels:
     app: paf-admin
 spec:
-  schedule: "0 * * * *"
+  schedule: "23 4 * * *"
   jobTemplate:
     spec:
       template:

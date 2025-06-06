@@ -28,17 +28,14 @@ export const main = async () => {
         })
         console.log(`Connected to ${obj_host}`)
 
+        // Retrieve config YAML from object storage and parse it
         let response = await s3Client.send(
             new GetObjectCommand({
                 Bucket: 'config',
                 Key: config_file,
             })
         )
-
-        // const config = yaml.load(fs.readFileSync('./paf-admin-backup-agent-dev.yaml'))
         const config = yaml.load(await response.Body.transformToString())
-        console.log(JSON.stringify(config))
-        
         mysql_host = config.mysql.host
         mysql_port = config.mysql.port
         mysql_databases = config.mysql.databases
@@ -48,12 +45,12 @@ export const main = async () => {
         process.exitCode = 1
     }
 
-    if (process.exitCode === 1 || !mysql_host || !mysql_port || ! mysql_databases) {
+    if (process.exitCode === 1 || !mysql_host || !mysql_port || ! mysql_databases || !obj_bucket) {
         console.error('Couldn\'t parse config from ENV, exiting.')
     } else {
         try {
 
-            // Backup all databases
+            // Backup all databases (dump & upload)
             await Promise.all(mysql_databases.map(async (db) => {
                 const dumpfile = db.name + '_' + DateTime.now().toISO() + '.sql'
                 await mysqldump({
@@ -75,7 +72,7 @@ export const main = async () => {
                 console.log(`Successfully sent ${dumpfile} to ${obj_bucket} on ${obj_host}`)
             }))
 
-            // Clean up (delete) all SQL files
+            // Clean up (delete) all local SQL files
             fs.readdir("./", (err, files) => {
                 if (err)
                     console.error(`Could not read directory`, err)
@@ -88,7 +85,7 @@ export const main = async () => {
                 })
             })
 
-            // Pruning of backups (older than 2 weeks)
+            // Pruning of backups ixn object storage (older than 2 weeks)
             try {
                 const response = await s3Client.send(new ListObjectsV2Command({
                     Bucket: obj_bucket,
