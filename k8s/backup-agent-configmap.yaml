@@ -2,6 +2,8 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: paf-admin-backup-agent
+  labels:
+    app: paf-admin-backup-agent
 data:
   image_tag: "${IMAGE_TAG}"
   mysql_database: "${MYSQL_DATABASE}"

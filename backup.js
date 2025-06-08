@@ -85,14 +85,14 @@ export const main = async () => {
                 })
             })
 
-            // Pruning of backups ixn object storage (older than 2 weeks)
+            // Pruning of backups ixn object storage (older than 3 days)
             try {
                 const response = await s3Client.send(new ListObjectsV2Command({
                     Bucket: obj_bucket,
                     MaxKeys: 1000
                 }))
                 await Promise.all(response.Contents.map(async (obj) => {
-                    if (DateTime.fromJSDate(obj.LastModified).plus({days:14}) < DateTime.now()) {
+                    if (DateTime.fromJSDate(obj.LastModified).plus({days:3}) < DateTime.now()) {
                         await s3Client.send(new DeleteObjectCommand({
                             Bucket: obj_bucket,
                             Key: obj.Key,

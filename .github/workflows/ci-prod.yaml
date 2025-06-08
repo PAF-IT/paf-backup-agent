@@ -1,0 +1,75 @@
+name: PROD - Docker Build, Upload and Kubernetes Deploy
+
+on: workflow_dispatch
+
+env:
+  # Set global action env variables for PROD:
+  IMAGE_TAG: paf-admin-backup-agent-prod
+  KUBE_NAMESPACE: prod
+
+jobs:
+  build-and-push:
+    name: Build & Push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    environment:
+      name: development
+    outputs:
+      image: ${{ steps.build.outputs.image }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push container image to GitHub Container Registry
+        id: build
+        run: |
+          IMAGE="ghcr.io/paf-it/${{ env.IMAGE_TAG }}:${{ github.sha }}"
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+          docker build . --tag ${{ env.IMAGE_TAG }}
+          docker tag ${{ env.IMAGE_TAG }} $IMAGE
+          docker push $IMAGE
+
+  deploy-dev:
+    name: Deploy to DEV
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set kubectl Context
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.UPCLOUD_KUBECONFIG }}
+          context: ${{ env.KUBE_NAMESPACE }}
+
+      - name: Deploy to Kubernetes
+        uses: swdotcom/update-and-apply-kubernetes-configs@v1
+        with:
+          k8-config-file-paths: |
+            k8s/backup-agent-configmap.yaml
+            k8s/backup-agent-cronjob.yaml
+          replacement-method: defined
+          namespace: ${{ env.KUBE_NAMESPACE }}
+        env:
+          IMAGE: ${{ needs.build-and-push.outputs.image }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          UPCLOUD_OBJ_HOST: ${{ secrets.UPCLOUD_OBJ_HOST }}
+          UPCLOUD_OBJ_ID: ${{ secrets.UPCLOUD_OBJ_ID }}
+          UPCLOUD_OBJ_SECRET: ${{ secrets.UPCLOUD_OBJ_SECRET }}

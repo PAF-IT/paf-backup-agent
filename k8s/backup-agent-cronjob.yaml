@@ -3,9 +3,9 @@ kind: CronJob
 metadata:
   name: paf-admin-backup-agent
   labels:
-    app: paf-admin
+    app: paf-admin-backup-agent
 spec:
-  schedule: "23 4 * * *"
+  schedule: "23 2 * * *"
   jobTemplate:
     spec:
       ttlSecondsAfterFinished: 600
