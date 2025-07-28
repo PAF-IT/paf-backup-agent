@@ -140,3 +140,5 @@ dist
 paf-admin-backup-agent-dev.yaml
 
 config.json
+
+paf-admin-backup-agent.yaml

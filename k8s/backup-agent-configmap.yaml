@@ -6,9 +6,6 @@ metadata:
     app: paf-admin-backup-agent
 data:
   image_tag: "${IMAGE_TAG}"
-  mysql_database: "${MYSQL_DATABASE}"
-  mysql_password: "${MYSQL_PASSWORD}"
-  mysql_user: "${MYSQL_USER}"
   upcloud_obj_host: "${UPCLOUD_OBJ_HOST}"
   upcloud_obj_id: "${UPCLOUD_OBJ_ID}"
   upcloud_obj_secret: "${UPCLOUD_OBJ_SECRET}"
