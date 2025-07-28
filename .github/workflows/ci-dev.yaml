@@ -67,9 +67,6 @@ jobs:
         env:
           IMAGE: ${{ needs.build-and-push.outputs.image }}
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          MYSQL_USER: ${{ secrets.MYSQL_USER }}
           UPCLOUD_OBJ_HOST: ${{ secrets.UPCLOUD_OBJ_HOST }}
           UPCLOUD_OBJ_ID: ${{ secrets.UPCLOUD_OBJ_ID }}
           UPCLOUD_OBJ_SECRET: ${{ secrets.UPCLOUD_OBJ_SECRET }}
